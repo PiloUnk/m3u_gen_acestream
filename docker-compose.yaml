@@ -9,7 +9,7 @@ services:
       - "${NGINX_PORT:-8080}:8080"
     environment:
       # Ace Stream Engine address (format: host:port)
-      - ACESTREAM_ENGINE_ADDR=${ACESTREAM_ENGINE_ADDR:-192.168.51.1:6878}
+      - ACESTREAM_ENGINE_ADDR=${ACESTREAM_ENGINE_ADDR:-127.0.0.1:6878}
       # HTTPAceProxy address (format: host:port)
       - HTTPACEPROXY_ADDR=${HTTPACEPROXY_ADDR:-127.0.0.1:8000}
       # Refresh interval in minutes (default: 720 = 12 hours)
