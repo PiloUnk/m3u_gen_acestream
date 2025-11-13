@@ -13,7 +13,7 @@ require (
 	github.com/goccy/go-yaml v1.18.0
 	github.com/jessevdk/go-flags v1.6.1
 	github.com/phuslu/log v1.0.120
-	github.com/samber/lo v1.51.0
+	github.com/samber/lo v1.52.0
 	github.com/stretchr/testify v1.11.1
 	github.com/ziutek/dvb v0.1.5
 )
