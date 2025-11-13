@@ -11,12 +11,10 @@
 !/.dockerignore
 !/Dockerfile
 !/docker-compose.yaml
-!/DOCKER_README.md
 !/entrypoint.sh
 !/generate.sh
-!/manage.sh
 !/nginx.conf
-!/nginx-entrypoint.sh
+!/supervisord.conf
 !/m3u_gen_acestream.docker.yaml
 
 # Ignore .env (contains sensitive config)
