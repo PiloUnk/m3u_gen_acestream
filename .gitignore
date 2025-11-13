@@ -24,3 +24,4 @@
 
 # Not these directories
 !/src
+!/.github
