@@ -1,0 +1,31 @@
+services:
+  # M3U acestream generation service with integrated Nginx
+  acestream-playlist:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: acestream-playlist
+    ports:
+      - "${NGINX_PORT:-8080}:8080"
+    environment:
+      # Ace Stream Engine address (format: host:port)
+      - ACESTREAM_ENGINE_ADDR=${ACESTREAM_ENGINE_ADDR:-192.168.51.1:6878}
+      # HTTPAceProxy address (format: host:port)
+      - HTTPACEPROXY_ADDR=${HTTPACEPROXY_ADDR:-127.0.0.1:8000}
+      # Refresh interval in minutes (default: 720 = 12 hours)
+      - REFRESH_INTERVAL_MINUTES=${REFRESH_INTERVAL_MINUTES:-720}
+      # Nginx port (for display in logs)
+      - NGINX_PORT=${NGINX_PORT:-8080}
+      # Filters (comma-separated lists for arrays, true/false for booleans)
+      - NAME_RX_FILTER=${NAME_RX_FILTER:-}
+      - NAME_RX_BLACKLIST=${NAME_RX_BLACKLIST:-}
+      - CATEGORIES_FILTER=${CATEGORIES_FILTER:-}
+      - CATEGORIES_FILTER_STRICT=${CATEGORIES_FILTER_STRICT:-false}
+      - CATEGORIES_BLACKLIST=${CATEGORIES_BLACKLIST:-}
+      - LANGUAGES_FILTER=${LANGUAGES_FILTER:-}
+      - LANGUAGES_FILTER_STRICT=${LANGUAGES_FILTER_STRICT:-false}
+      - LANGUAGES_BLACKLIST=${LANGUAGES_BLACKLIST:-}
+      - COUNTRIES_FILTER=${COUNTRIES_FILTER:-}
+      - COUNTRIES_FILTER_STRICT=${COUNTRIES_FILTER_STRICT:-false}
+      - COUNTRIES_BLACKLIST=${COUNTRIES_BLACKLIST:-}
+    restart: unless-stopped

@@ -1,68 +1,11 @@
-# m3u_gen_acestream
-
-## What is this?
-
-> M3U playlist generator for Ace Stream.
-
-## How it works?
-
-It fetches available channels from ace stream engine using API, filters and transforms them and writes
-M3U playlists using templates defined in config.
-
-## Notes
-
-To use it, VPN or proxy might be required as some ISP block connections to acestream servers.
-
-## Requirements
-
-[Ace Stream](https://docs.acestream.net/products/) running locally or remotely.
-
-## Command line flags
-
-| Command argument     | Description                                                                               |
-| -------------------- | ----------------------------------------------------------------------------------------- |
-| -h, --help           | Print help message                                                                        |
-| -v, --version        | Print the program version                                                                 |
-| -u, --update         | Check for updates and update                                                              |
-| -l, --logLevel       | Logging level. Can be from `1` (most verbose) to `7` (least verbose) [default: `3`]       |
-| -f, --logFile        | Log file. If set, writes structured log to a file at the specified path                   |
-| -c, --cfgPath        | Config file path to read from or initialize a default [default: `m3u_gen_acestream.yaml`] |
-
-Unless config already exists, on first run it creates default config in current directory and terminates.
-Tweak it to suit your needs and start the program again.
-
-## Docker Deployment
-
-Quick start:
-```bash
-# Copy and edit the environment file
-cp .env.example .env
-# Edit .env to set your Ace Stream Engine address, playlist refresh interval and filters
-
-# Start the services
-docker-compose up -d --build
-
-# Access playlists at:
-# http://localhost:8080/playlist_hls.m3u8
-# http://localhost:8080/playlist_mpegts.m3u8
-# http://localhost:8080/playlist_httpaceproxy.m3u8
-```
-
-The Docker setup includes:
-- Automatic playlist generation (configurable interval, default: 12 hours)
-- Nginx server to serve the playlists
-- Multi-stage build (compiles from source)
-- Environment variable configuration
-
-## Downloads
-
-See [releases page](https://github.com/SCP002/m3u_gen_acestream/releases)
-
-## Default config
-
-```yaml
 # Ace Stream Engine address in format of host:port.
-engineAddr: 127.0.0.1:6878
+# This value is set via environment variable ACESTREAM_ENGINE_ADDR
+engineAddr: ${ACESTREAM_ENGINE_ADDR}
+#
+# HTTPAceProxy address in format of host:port.
+# This value is set via environment variable HTTPACEPROXY_ADDR
+# Default: 127.0.0.1:8000
+httpAceProxyAddr: ${HTTPACEPROXY_ADDR}
 #
 # Playlists to generate.
 playlists:
@@ -71,7 +14,7 @@ playlists:
 # Change any non-default category to 'other'.
 - #
   # Destination filepath to write playlist to.
-  outputPath: ./out/playlist_mpegts_all.m3u8
+  outputPath: ./out/playlist_mpegts.m3u8
   #
   # Template for the header of M3U file.
   headerTemplate: |
@@ -115,14 +58,14 @@ playlists:
   # nameRxFilter:
   # - '.*keep channels matching name A.*'
   # - '.*keep channels matching name B.*'
-  nameRxFilter: []
+  nameRxFilter: ${NAME_RX_FILTER_YAML}
   #
   # Remove channels which name matches any of these regular expressions.
   # Example:
   # nameRxBlacklist:
   # - '.*remove channels matching name A.*'
   # - '.*remove channels matching name B.*'
-  nameRxBlacklist: []
+  nameRxBlacklist: ${NAME_RX_BLACKLIST_YAML}
   #
   # Only keep channels which category equals to any of these.
   # See https://docs.acestream.net/developers/knowledge-base/list-of-categories/
@@ -132,10 +75,10 @@ playlists:
   # categoriesFilter:
   # - 'keep channels with category A'
   # - 'keep channels with category B'
-  categoriesFilter: []
+  categoriesFilter: ${CATEGORIES_FILTER_YAML}
   #
   # If true, only keep channels with categories that are in filter, but not any other.
-  categoriesFilterStrict: false
+  categoriesFilterStrict: ${CATEGORIES_FILTER_STRICT}
   #
   # Remove channels which category equals to any of these.
   # See https://docs.acestream.net/developers/knowledge-base/list-of-categories/
@@ -145,7 +88,7 @@ playlists:
   # categoriesBlacklist:
   # - 'remove channels with category A'
   # - 'remove channels with category B'
-  categoriesBlacklist: []
+  categoriesBlacklist: ${CATEGORIES_BLACKLIST_YAML}
   #
   # Only keep channels which language equals to any of these.
   # Languages are 3-character, lower case strings, such as 'eng', 'rus' etc.
@@ -154,10 +97,10 @@ playlists:
   # languagesFilter:
   # - 'keep channels with language A'
   # - 'keep channels with language B'
-  languagesFilter: []
+  languagesFilter: ${LANGUAGES_FILTER_YAML}
   #
   # If true, only keep channels with languages that are in filter, but not any other.
-  languagesFilterStrict: false
+  languagesFilterStrict: ${LANGUAGES_FILTER_STRICT}
   #
   # Remove channels which language equals to any of these.
   # Languages are 3-character, lower case strings, such as 'eng', 'rus' etc.
@@ -166,7 +109,7 @@ playlists:
   # languagesBlacklist:
   # - 'remove channels with language A'
   # - 'remove channels with language B'
-  languagesBlacklist: []
+  languagesBlacklist: ${LANGUAGES_BLACKLIST_YAML}
   #
   # Only keep channels which country equals to any of these.
   # Countries are 2-character, lower case strings, such as 'us', 'ru' etc. and 'int' for international.
@@ -175,10 +118,10 @@ playlists:
   # countriesFilter:
   # - 'keep channels with country A'
   # - 'keep channels with country B'
-  countriesFilter: []
+  countriesFilter: ${COUNTRIES_FILTER_YAML}
   #
   # If true, only keep channels with countries that are in filter, but not any other.
-  countriesFilterStrict: false
+  countriesFilterStrict: ${COUNTRIES_FILTER_STRICT}
   #
   # Remove channels which country equals to any of these.
   # Countries are 2-character, lower case strings, such as 'us', 'ru' etc. and 'int' for international.
@@ -187,7 +130,7 @@ playlists:
   # countriesBlacklist:
   # - 'remove channels with country A'
   # - 'remove channels with country B'
-  countriesBlacklist: []
+  countriesBlacklist: ${COUNTRIES_BLACKLIST_YAML}
   #
   # Only keep channels which status equals to any of these.
   # Can be 1 (no guaranty that channel is working) or 2 (channel is available).
@@ -229,30 +172,28 @@ playlists:
 #
 # HLS format, only keep tv, music and empty category.
 # Change category 'tv' to 'television' and empty category to 'unknown'.
-- outputPath: ./out/playlist_hls_tv_+_music_+_no_category.m3u8
+- outputPath: ./out/playlist_hls.m3u8
   headerTemplate: |
     #EXTM3U url-tvg="http://epg.one/epg2.xml.gz" tvg-shift=0 deinterlace=1 m3uautoload=1
   entryTemplate: |
     #EXTINF:-1 group-title="{{.Categories}}",{{.Name}}
     http://{{.EngineAddr}}/ace/manifest.m3u8?infohash={{.Infohash}}
   categoryRxToCategoryMap:
-    (?i)^tv$: television
-    ^$: unknown
+    ^(?!.*(informational|entertaining|educational|movies|documentaries|sport|fashion|music|regional|ethnic|religion|teleshop|erotic_18_plus|other_18_plus|cyber_games|amateur|webcam)).*: other
+    #(?i)^tv$: television
+    #^$: unknown
   nameRxToCategoriesMap: {}
-  nameRxFilter: []
-  nameRxBlacklist: []
-  categoriesFilter:
-  - tv
-  - music
-  - unknown
-  categoriesFilterStrict: false
-  categoriesBlacklist: []
-  languagesFilter: []
-  languagesFilterStrict: false
-  languagesBlacklist: []
-  countriesFilter: []
-  countriesFilterStrict: false
-  countriesBlacklist: []
+  nameRxFilter: ${NAME_RX_FILTER_YAML}
+  nameRxBlacklist: ${NAME_RX_BLACKLIST_YAML}
+  categoriesFilter: ${CATEGORIES_FILTER_YAML}
+  categoriesFilterStrict: ${CATEGORIES_FILTER_STRICT}
+  categoriesBlacklist: ${CATEGORIES_BLACKLIST_YAML}
+  languagesFilter: ${LANGUAGES_FILTER_YAML}
+  languagesFilterStrict: ${LANGUAGES_FILTER_STRICT}
+  languagesBlacklist: ${LANGUAGES_BLACKLIST_YAML}
+  countriesFilter: ${COUNTRIES_FILTER_YAML}
+  countriesFilterStrict: ${COUNTRIES_FILTER_STRICT}
+  countriesBlacklist: ${COUNTRIES_BLACKLIST_YAML}
   statusFilter:
   - 2
   availabilityThreshold: 1.0
@@ -264,30 +205,26 @@ playlists:
   removeDeadWorkers: 1
 #
 # https://github.com/pepsik-kiev/HTTPAceProxy format, all but erotic channels.
-- outputPath: ./out/playlist_httpaceproxy_all_but_porn.m3u8
+- outputPath: ./out/playlist_httpaceproxy.m3u8
   headerTemplate: |
     #EXTM3U url-tvg="http://epg.one/epg2.xml.gz" tvg-shift=0 deinterlace=1 m3uautoload=1
   entryTemplate: |
     #EXTINF:-1 group-title="{{.Categories}}",{{.Name}}
-    http://127.0.0.1:8000/infohash/{{.Infohash}}/stream.mp4
-  categoryRxToCategoryMap: {}
+    http://${HTTPACEPROXY_ADDR}/infohash/{{.Infohash}}/stream.mp4
+  categoryRxToCategoryMap:
+    ^(?!.*(informational|entertaining|educational|movies|documentaries|sport|fashion|music|regional|ethnic|religion|teleshop|erotic_18_plus|other_18_plus|cyber_games|amateur|webcam)).*: other
   nameRxToCategoriesMap: {}
-  nameRxFilter: []
-  nameRxBlacklist:
-  - (?i).*erotic.*
-  - (?i).*porn.*
-  - '(?i).*18\+.*'
-  categoriesFilter: []
-  categoriesFilterStrict: false
-  categoriesBlacklist:
-  - erotic_18_plus
-  - 18+
-  languagesFilter: []
-  languagesFilterStrict: false
-  languagesBlacklist: []
-  countriesFilter: []
-  countriesFilterStrict: false
-  countriesBlacklist: []
+  nameRxFilter: ${NAME_RX_FILTER_YAML}
+  nameRxBlacklist: ${NAME_RX_BLACKLIST_YAML}
+  categoriesFilter: ${CATEGORIES_FILTER_YAML}
+  categoriesFilterStrict: ${CATEGORIES_FILTER_STRICT}
+  categoriesBlacklist: ${CATEGORIES_BLACKLIST_YAML}
+  languagesFilter: ${LANGUAGES_FILTER_YAML}
+  languagesFilterStrict: ${LANGUAGES_FILTER_STRICT}
+  languagesBlacklist: ${LANGUAGES_BLACKLIST_YAML}
+  countriesFilter: ${COUNTRIES_FILTER_YAML}
+  countriesFilterStrict: ${COUNTRIES_FILTER_STRICT}
+  countriesBlacklist: ${COUNTRIES_BLACKLIST_YAML}
   statusFilter:
   - 2
   availabilityThreshold: 1.0
@@ -297,42 +234,3 @@ playlists:
   checkRespTimeout: 20s
   removeDeadLinkTemplate: http://{{.EngineAddr}}/ace/getstream?infohash={{.Infohash}}
   removeDeadWorkers: 1
-```
-
-## Build from source code [Go / Golang]
-
-1. Install [Golang](https://golang.org/) 1.25 or newer.
-
-2. Download the source code:  
-
-    ```sh
-    git clone https://github.com/SCP002/m3u_gen_acestream.git
-    ```
-
-3. Install dependencies:
-
-    ```sh
-    cd src
-    go mod tidy
-    ```
-
-    Or
-
-    ```sh
-    cd src
-    go get ./...
-    ```
-
-4. Update dependencies (optional):
-
-    ```sh
-    go get -u ./...
-    ```
-
-5. To build a binary for current OS / architecture into `../build/` folder:
-
-    ```sh
-    go build -o ../build/ m3u_gen_acestream.go
-    ```
-
-    Or run `/src/build.sh` to build binaries for every OS / architecture pair.

@@ -7,6 +7,20 @@
 !/LICENSE
 !/README.md
 !/ROADMAP.md
+!/.env.example
+!/.dockerignore
+!/Dockerfile
+!/docker-compose.yaml
+!/DOCKER_README.md
+!/entrypoint.sh
+!/generate.sh
+!/manage.sh
+!/nginx.conf
+!/nginx-entrypoint.sh
+!/m3u_gen_acestream.docker.yaml
+
+# Ignore .env (contains sensitive config)
+.env
 
 # Not these directories
 !/src

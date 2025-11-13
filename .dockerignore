@@ -1,0 +1,19 @@
+# Ignore unnecessary files for Docker build
+.git
+.gitignore
+.gitattributes
+LICENSE
+README.md
+DOCKER_README.md
+
+# Ignore build folder with pre-compiled binaries
+build/
+
+# Ignore management scripts
+manage.sh
+
+# Ignore local config (we use the .docker.yaml version)
+m3u_gen_acestream.yaml
+
+# Ignore compiled binaries
+build/m3u_gen_acestream_*
